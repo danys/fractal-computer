@@ -27,6 +27,13 @@ public class ComplexNumber
 		return this.add(new ComplexNumber(-xn,-yn));
 	}
 	
+	public ComplexNumber mult(ComplexNumber n)
+	{
+		double a = n.getReal();
+		double b = n.getImaginary();
+		return new ComplexNumber(a*x-b*y,b*x+a*y);
+	}
+	
 	public ComplexNumber divide(ComplexNumber n)
 	{
 		double a = n.getReal();
@@ -49,23 +56,17 @@ public class ComplexNumber
 		return new ComplexNumber(x*c,y*c);
 	}
 	
-	private double power(double base, int exp)
-	{
-		if (exp<=0) return 1.0;
-		if (exp==1) return base;
-		if (exp/2==0) return power(base*base,exp/2);
-		else return base*power(base*base,(exp-1)/2);
-	}
-	
 	public ComplexNumber power(int exp)
 	{
+		return power(this,exp);
+	}
+	
+	private ComplexNumber power(ComplexNumber base, int exp)
+	{
 		if (exp<=0) return new ComplexNumber(1,0);
-		if (exp==1) return this;
-		double norm = norm();
-		double args = arg();
-		norm = power(norm,exp);
-		args = (args*exp)%(2*Math.PI);
-		return new ComplexNumber(norm*Math.cos(args),norm*Math.sin(args));
+		if (exp==1) return base;
+		if (exp%2==0) return power(base.mult(base),exp/2);
+		else return base.mult(power(base.mult(base),(exp-1)/2));
 	}
 	
 	public double getReal()
