@@ -21,7 +21,7 @@ public class FractalComputer
 		return ((x/(startdimensionwidth))*enddimensionwidth)-xmin+cxmin;
 	}
 	
-	public static Color computeColor(int i,double s,double nu)
+	public static Color computeColor(int i,double s,double nu,int maxit)
 	{
 		int r[] = {101,101,101,120,101,52,40,177,139,154,203,215,196,215,215,215};
 		int g[] = {215,196,139,101,215,203,154,101,215,40,52,101,215,177,120,101};
@@ -36,7 +36,6 @@ public class FractalComputer
 		if (cg>255) cg = 255.0;
 		if (cb>255) cb = 255.0;
 		return new Color((int)cr,(int)cg,(int)cb);
-		//return new Color((int)((double)r[i%r.length]*s),(int)((double)g[i%g.length]*s),(int)((double)b[i%b.length]*s));
 	}
 	
 	public static void main(String args[])
@@ -84,14 +83,12 @@ public class FractalComputer
 				k=0;
 				while(k<maxiterations && temp.norm()<2)
 				{
-					//temp = temp.subtract(poly.evaluate(temp).divide(dpoly.evaluate(input)));
-					//temp = temp.mult(temp).add(c);
 					temp = temp.power(2).add(c);
 					k++;
 				}
 				pcount[k]++;
 				bucketindex[i][j]=k;
-				nu[i][j]=Math.log(Math.log(temp.norm())/Math.log(2))/Math.log(2);
+				nu[i][j]=nu[i][j]=Math.log(Math.log(temp.norm()))/Math.log(2);
 			}
 		}
 		for(int i=0;i<=maxiterations;i++) ptotal += pcount[i];
@@ -105,7 +102,7 @@ public class FractalComputer
 		{
 			for(int j=0;j<dimensiony;j++)
 			{
-				color = computeColor(bucketindex[i][j],pcount[bucketindex[i][j]],nu[i][j]);
+				color = computeColor(bucketindex[i][j],pcount[bucketindex[i][j]],nu[i][j],maxiterations);
 				im.setRGB(i,j, color.getRGB());
 			}
 		}
