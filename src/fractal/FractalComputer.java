@@ -29,6 +29,8 @@ public class FractalComputer
 		double it = (double)(i+1)-nu;
 		int i1 = (int) Math.floor(it);
 		int i2 = i1+1;
+		if (i1<0) i1=0;
+		if (i2<0) i2=0;
 		double cr = (r[i2%r.length]<nu*(r[i2%r.length]-r[i1%r.length])) ? r[i2%r.length] : r[i2%r.length]-nu*(r[i2%r.length]-r[i1%r.length]);
 		double cg = (g[i2%r.length]<nu*(g[i2%r.length]-g[i1%r.length])) ? g[i2%r.length] : g[i2%r.length]-nu*(g[i2%r.length]-g[i1%r.length]);
 		double cb = (b[i2%r.length]<nu*(b[i2%r.length]-b[i1%r.length])) ? b[i2%r.length] : b[i2%r.length]-nu*(b[i2%r.length]-b[i1%r.length]);
@@ -40,16 +42,16 @@ public class FractalComputer
 	
 	public static void main(String args[])
 	{
-		//z -> z - (p(z)/p'(z)) Newton fractal formula
-		//Example polynomial: z -> z^3-1
+		//Computes the Newton Fractal: z -> z - p(z)/p'(z)
 		List<Map.Entry<Integer,Integer>> list = new ArrayList<Map.Entry<Integer,Integer>>();
-		//Map.Entry<Integer,Integer> entry1 = new AbstractMap.SimpleEntry<Integer,Integer>(0,-1);
-		//Map.Entry<Integer,Integer> entry2 = new AbstractMap.SimpleEntry<Integer,Integer>(3,1);
-		Map.Entry<Integer,Integer> entry1 = new AbstractMap.SimpleEntry<Integer,Integer>(2,1);
+		//Map.Entry<Integer,Integer> entry1 = new AbstractMap.SimpleEntry<Integer,Integer>(2,1);
+		Map.Entry<Integer,Integer> entry1 = new AbstractMap.SimpleEntry<Integer,Integer>(3,1);
+		Map.Entry<Integer,Integer> entry2 = new AbstractMap.SimpleEntry<Integer,Integer>(0,-1);
 		list.add(entry1);
-		//list.add(entry2);
-		//Polynomial poly = new Polynomial(list);
-		//Polynomial dpoly = poly.getDerivativePolynomial();
+		list.add(entry2);
+		//p(z)=z^3-1
+		Polynomial poly = new Polynomial(list);
+		Polynomial dpoly = poly.getDerivativePolynomial();
 		int dimensionx,dimensiony,maxiterations;
 		double cminx,cminy,cmaxx,cmaxy,minx,maxx,miny,maxy;
 		dimensionx=3000;
@@ -65,7 +67,6 @@ public class FractalComputer
 		maxiterations=1000;
 		ComplexNumber c,temp;
 		BufferedImage im = new BufferedImage(dimensionx,dimensiony,BufferedImage.TYPE_INT_ARGB);
-		//int maxval=255;
 		Color color=null;
 		int k;
 		double pcount[] = new double[maxiterations+1];
@@ -79,11 +80,13 @@ public class FractalComputer
 			{
 				ptotal = 0;
 				c = new ComplexNumber(scale(i,minx,maxx,cminx,cmaxx),scale(j,miny,maxy,cminy,cmaxy));
-				temp = new ComplexNumber(0,0);
+				//temp = new ComplexNumber(0,0); Uncomment this line to render a Mandelbrot image
+				temp=c; //Comment this line to render a Mandelbrot image
 				k=0;
 				while(k<maxiterations && temp.norm()<2)
 				{
-					temp = temp.power(2).add(c);
+					temp = temp.subtract(poly.evaluate(temp).divide(dpoly.evaluate(temp))); //Comment this line to render a Mandelbrot image
+					//temp = temp.power(2).add(c); //Uncomment this line to render a Mandelbrot image
 					k++;
 				}
 				pcount[k]++;
