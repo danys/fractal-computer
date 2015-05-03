@@ -21,12 +21,22 @@ public class FractalComputer
 		return ((x/(startdimensionwidth))*enddimensionwidth)-xmin+cxmin;
 	}
 	
-	public static Color computeColor(int i)
+	public static Color computeColor(int i,double s,double nu)
 	{
 		int r[] = {101,101,101,120,101,52,40,177,139,154,203,215,196,215,215,215};
 		int g[] = {215,196,139,101,215,203,154,101,215,40,52,101,215,177,120,101};
 		int b[] = {177,215,215,215,120,153,116,215,101,78,102,196,101,101,101,139};
-		return new Color(r[i%r.length],g[i%g.length],b[i%b.length]);
+		double it = (double)(i+1)-nu;
+		int i1 = (int) Math.floor(it);
+		int i2 = i1+1;
+		double cr = (r[i2%r.length]<nu*(r[i2%r.length]-r[i1%r.length])) ? r[i2%r.length] : r[i2%r.length]-nu*(r[i2%r.length]-r[i1%r.length]);
+		double cg = (g[i2%r.length]<nu*(g[i2%r.length]-g[i1%r.length])) ? g[i2%r.length] : g[i2%r.length]-nu*(g[i2%r.length]-g[i1%r.length]);
+		double cb = (b[i2%r.length]<nu*(b[i2%r.length]-b[i1%r.length])) ? b[i2%r.length] : b[i2%r.length]-nu*(b[i2%r.length]-b[i1%r.length]);
+		if (cr>255) cr = 255.0;
+		if (cg>255) cg = 255.0;
+		if (cb>255) cb = 255.0;
+		return new Color((int)cr,(int)cg,(int)cb);
+		//return new Color((int)((double)r[i%r.length]*s),(int)((double)g[i%g.length]*s),(int)((double)b[i%b.length]*s));
 	}
 	
 	public static void main(String args[])
@@ -61,6 +71,7 @@ public class FractalComputer
 		int k;
 		double pcount[] = new double[maxiterations+1];
 		int bucketindex[][] = new int[dimensionx][dimensiony];
+		double nu[][] = new double[dimensionx][dimensiony];
 		int ptotal=0;
 		for(int i=0;i<=maxiterations;i++) pcount[i] = 0;
 		for(int i=0;i<dimensionx;i++)
@@ -80,20 +91,21 @@ public class FractalComputer
 				}
 				pcount[k]++;
 				bucketindex[i][j]=k;
+				nu[i][j]=Math.log(Math.log(temp.norm())/Math.log(2))/Math.log(2);
 			}
 		}
 		for(int i=0;i<=maxiterations;i++) ptotal += pcount[i];
-		int sum=0;
+		double sum=0.0;
 		for(int i=0;i<=maxiterations;i++)
 		{
 			sum += pcount[i];
-			pcount[i]=sum/ptotal;
+			pcount[i]=sum/(double)ptotal;
 		}
 		for(int i=0;i<dimensionx;i++)
 		{
 			for(int j=0;j<dimensiony;j++)
 			{
-				color = computeColor(bucketindex[i][j]/*,pcount[i]*/);
+				color = computeColor(bucketindex[i][j],pcount[bucketindex[i][j]],nu[i][j]);
 				im.setRGB(i,j, color.getRGB());
 			}
 		}
